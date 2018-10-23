@@ -16,54 +16,81 @@ dosseg
 .data
 ZerDiv     Dw  0
 .const
-X          Db  -2
-Y          Db  -1
-Z          Db  2
+X          Db  -4
+Y          Db  -3
+Z          Db  8
 Zero       Equ 0
 .code
 .startup
 .386
 _Start:
-           Mov   Al, Y
-           Imul  Al
-           MovSx Bx, Y
-           Imul  Bx, Ax  ;Bx = Y^3
+        	mov		al, Y
+        	imul	al
+        	movsx	bx, Y
+        	imul	bx, ax  ;Bx = Y^3
            
-           MovSx Ax, X
-           Neg   Ax      ;Ax = -X
+        	movsx	ax, X
+        	neg		ax      ;Ax = -X
+
+        	imul	ax, bx  ;Ax = -XY^3
+        	mov		cx, ax  ;move to preserve value
            
+        	mov		al, Z
+        	add		al, Z   ;Ax = 2Z
+        	cbw 
+           
+        	add		ax, cx  ;Ax = -XY^3+2Z seems correct          
+        	jne		Not_Zero
 
-           Jne   Not_Zero
-
-           Mov   Dx, Zero
-           Jmp   Short _Exit
+        	mov		dx, Zero
+        	jmp		Short _Exit
 
 Not_Zero:
-           Jl  Branch_C
+        	jl		LessThanZero ; <- if less than 0
 
-           Mov   Al, X
-           Imul  Y
-           Neg   Ax 
-           Sub   Ax, 4
+        ;if more than than 0:
+        	movsx	ax, X
+        	add		ax, ax
+    		movsx	bx, Y 
+        	imul	ax, bx ;Ax = 2XY
+		
+           
+        	movsx	bx,	Z
+    		imul  	bx,	bx
+        	inc		bx		;bx = Z^2+1
 
-           Jmp   Short Rezult
+			sub		ax,	bx	;ax = (2XY-Z^2+1)
+			
+        	jmp		Short Result
 
-Branch_C:  MovSx Ax, Y          ;386
-           Imul  Ax, Ax, 2	;386
-           Inc   Ax
-Rezult:
-           Cmp   Ax, Zero
-           Jne   _Div
+LessThanZero:  
+			movsx 	ax, X
+			movsx	bx,	Y
+			imul	ax,	bx	;ax = XY
 
-           Mov   ZerDiv, 1 
-           Jmp   Short _Exit
+			movsx	bx,	Z
+			imul	bx, bx	; bx = z^2
+
+			imul	ax, bx	; ax = XYZ^2
+			add		ax, 2	; ax = XYZ^2+2
+
+			jmp 	Short Result
+		
+
+
+Result:
+        	cmp		Ax, Zero
+        	jne		_Div
+
+        	mov		ZerDiv, 1 
+    		jmp		Short _Exit
 
 _Div:
-           Xchg  Ax, Bx         ;       Ax = FFF7 (-9), Bx = FFFF (-1)
-           MovSx EBx, Bx      	;386   EBx = FFFF FFFF
-           Cwde			;386   EAx = FFFF FFF7
-           Cdq 			;386   EDx = FFFF FFFF
-           IDiv EBx		;386   EAx = 0000 0009, EDx = 0000 0000 
+        	xchg	ax,	cx         
+        	movsx	ecx,cx      	
+        	cwde		
+           	cdq 			
+        	idiv 	ecx		
 _Exit:
 
 .exit 0
