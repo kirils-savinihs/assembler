@@ -13,7 +13,7 @@ ROW		Equ	6
 
 Matrix		DW	8, 2, 4   
 		DW	4, 4, 10   
-CLMN_AVGS	DB	TCLMN Dup (?)
+Vector	DB	TCLMN Dup (?)
 
 S	Equ	Type Matrix
 
@@ -29,10 +29,9 @@ S	Equ	Type Matrix
 ;	}
 ;	clmn_sums[CLMN]=clmn_sum
 ;}
-
 Start:
-	lea	di,	Word Ptr CLMN_AVGS
-	mov	cx,	Word Ptr TCLMN
+	lea	di,	Vector
+	mov	cx,	TCLMN
 	xor	bx,	bx
 	xor	si,	si
 	xor	bp,	bp
@@ -41,25 +40,38 @@ outer_loop:
 	push	cx				;Save what iteration outer loop is at
 	xor	ax,	ax			;Clear Ax (Used for sum)
 	xor	bx,	bx			;Clear Bx (Counts rows)
-	mov	cx,	Word Ptr TROW			;Set number of iterations for inner loop
+	mov	cx,	TROW			;Set number of iterations for inner loop
 	xor	bp,	bp
+	lea	bx,	Matrix
 inner_loop:
-	mov	dx,	Matrix[bx][si]
+	mov	dx,	[bx][si]
 	test	dx,	1
 	jnz	odd				;If odd then skip
 	add	ax,	dx
 	inc	bp
 odd:
-	add	bx,	 Word Ptr ROW			;Increment Bx
+	add	bx,	ROW			;Increment Bx
 	loop	inner_loop
 	
 	mov	bx,	bp
 	div	bl				;Divide Ax by Bl
-	mov	[di],	al		;Result is stored in Al, remainder in Dl
+	mov	[di],	al			;Result is stored in Al, remainder in Dl
 	inc	di
-	add	si,	 Word Ptr CLMN
+	add	si,	CLMN
 	pop	cx
 	loop	outer_loop
+
+
+	xor	bx,	bx
+	xor	ax,	ax
+	mov	cx,	TCLMN
+	lea	di,	Vector
+print:
+	mov	al,	[di+bx]
+	inc	bx
+	loop	print
+
+
 
 .exit 0
 end

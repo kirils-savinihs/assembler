@@ -13,7 +13,7 @@ ROW		Equ	6
 
 Matrix		DW	8, 2, 4   
 		DW	4, 4, 10   
-CLMN_AVGS	DB	TCLMN Dup (?)
+Vector	DB	TCLMN Dup (?)
 
 S	Equ	Type Matrix
 
@@ -29,9 +29,8 @@ S	Equ	Type Matrix
 ;	}
 ;	clmn_sums[CLMN]=clmn_sum
 ;}
-
 Start:
-	lea	di,	CLMN_AVGS
+	lea	di,	Vector
 	mov	cx,	TCLMN
 	xor	bx,	bx
 	xor	si,	si
@@ -55,11 +54,23 @@ odd:
 	
 	mov	bx,	bp
 	div	bl				;Divide Ax by Bl
-	mov	[di],	al		;Result is stored in Al, remainder in Dl
+	mov	[di],	al			;Result is stored in Al, remainder in Dl
 	inc	di
 	add	si,	CLMN
 	pop	cx
 	loop	outer_loop
+
+
+	xor	bx,	bx
+	xor	ax,	ax
+	mov	cx,	TCLMN
+	lea	di,	Vector
+print:
+	mov	al,	[di+bx]
+	inc	bx
+	loop	print
+
+
 
 .exit 0
 end
