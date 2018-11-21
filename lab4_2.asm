@@ -17,18 +17,6 @@ Vector	DB	TCLMN Dup (?)
 
 S	Equ	Type Matrix
 
-;int[] clmn_sums = new int[TCLMN]
-;
-;for (int CLMN=0;i<TCLMN;i++)
-;{
-;	for (int ROW=0; y<TROW; y++)	
-;	{
-;		if (array[i][y] % 2=0)
-;			clmn_sum+=array[i][y]
-;
-;	}
-;	clmn_sums[CLMN]=clmn_sum
-;}
 Start:
 	lea	di,	Vector
 	mov	cx,	TCLMN
@@ -54,7 +42,7 @@ odd:
 	loop	inner_loop
 	
 	mov	bx,	bp
-	div	bl				;Divide Ax by Bl
+	idiv	bl				;Divide Ax by Bl
 	mov	[di],	al			;Result is stored in Al, remainder in Dl
 	inc	di
 	add	si,	CLMN
