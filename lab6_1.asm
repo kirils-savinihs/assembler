@@ -19,23 +19,23 @@ outer_loop:
 	push	cx				;Save what iteration outer loop is at
 	xor	ax,	ax			;Clear Ax (Used for sum)
 	xor	bx,	bx			;Clear Bx (Counts rows)
-	mov	cx,	TROW			;Set number of iterations for inner loop
+	mov	cx,	_TROW			;Set number of iterations for inner loop
 	xor	bp,	bp
 inner_loop:
-	mov	dx,	Matrix[bx][si]
+	mov	dx,	_Matrix[bx][si]
 	test	dx,	1
 	jnz	odd				;If odd then skip
 	add	ax,	dx
 	inc	bp
 odd:
-	add	bx,	ROW			;Increment Bx
+	add	bx,	_ROW			;Increment Bx
 	loop	inner_loop
 	
 	mov	bx,	bp
 	idiv	bl				;Divide Ax by Bl
 	mov	[di],	al			;Result is stored in Al, remainder in Dl
 	inc	di
-	add	si,	CLMN
+	add	si,	_CLMN
 	pop	cx
 	loop	outer_loop
 
